@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import QuestionCard from './components/QuestionCard';
-// Types
-import { Difficulty, QuestionState, fetchQuizQuestions } from './api';
-// Styles
+import { QuestionState, fetchQuizQuestionsExaktikh, fetchQuizQuestionsXeirourgikh1, fetchQuizQuestionsXeirourgikh2, fetchQuizQuestionsXeirourgikh3, fetchQuizQuestionsAkinith1, fetchQuizQuestionsAkinith2 } from './api';
 import { GlobalStyle, Wrapper } from './App.styles';
+import { shuffleArray } from './utils';
 
 export type AnswerObject = {
   question: string;
@@ -12,7 +11,10 @@ export type AnswerObject = {
   correctAnswer: string;
 }
 
-const TOTAL_QUESTIONS = 50;
+interface QuizOptionsState {
+  startingQuestion: number,
+  totalQuestions: number
+}
 
 const App = () => {
   const [ loading, setLoading ] = useState(false);
@@ -21,31 +23,128 @@ const App = () => {
   const [ userAnswers, setUserAnswers ] = useState<AnswerObject[]>([]);
   const [ score, setScore ] = useState(0);
   const [ gameOver, setGameOver ] = useState(true);
+  const [ inOptionsPage, setInOptionsPage ] = useState(false)
+  const [ totalQuestions, setTotalQuestions ] = useState(50)
 
-  // https://stackoverflow.com/questions/53898810/executing-async-code-on-update-of-state-with-react-hooks
-  // 模擬 DidUpdate
-  // useEffect(() => {
-  //   console.log(questions)
-  //   if (questions != []) {
-  //     setLoading(false);
-  //   }
-  // }, [questions])
-
-  const startTrivia = async () => {
-      setLoading(true);
-      setGameOver(false);
-
-      const newQuestions = await fetchQuizQuestions(
-        TOTAL_QUESTIONS,
-        Difficulty.EASY
+  class QuizOptions extends React.Component<{},QuizOptionsState> {
+    constructor(props) {
+      super(props);
+      this.state = {
+        startingQuestion: 0,
+        totalQuestions: 50
+      }
+  
+      this.handleChange = this.handleChange.bind(this);
+      this.handleSubmit = this.handleSubmit.bind(this);
+    }
+  
+    handleChange(event) {
+      event.target.name === 'starting-question' ? this.setState({startingQuestion:Number.parseInt(event.target.value)})
+                                                : this.setState({totalQuestions:Number.parseInt(event.target.value)})
+    }
+  
+    handleSubmit(event) {
+      event.preventDefault();
+      const newQuestions = questions.slice(this.state.startingQuestion,this.state.startingQuestion+this.state.totalQuestions)
+      setQuestions(shuffleArray(newQuestions))
+      setTotalQuestions(this.state.totalQuestions)
+      setInOptionsPage(false)
+    }
+  
+    render() {
+      return (
+        <form onSubmit={this.handleSubmit}>
+          <h2>Quiz Options</h2>
+          Collected {questions.length} questions <br/><br/>
+          <label>
+            {'Starting Question: '}
+            <input type='text' value={this.state.startingQuestion} name='starting-question' onChange={this.handleChange} /><br/>
+            {'Total Questions: '}
+            <input type='text' value={this.state.totalQuestions} name='total-questions' onChange={this.handleChange} />
+          </label><br/>
+          <input type="submit" value="Submit" />
+        </form>
       );
+    }
+  }
 
-      setQuestions(newQuestions);
-      setScore(0);
-      setUserAnswers([]);
-      setNumber(0);
-      setLoading(false);
-  };
+  const prepareTriviaExaktikh = async () => {
+    setLoading(true);
+    setGameOver(false);
+    setInOptionsPage(true)
+    const newQuestions = await fetchQuizQuestionsExaktikh()
+
+    setQuestions(newQuestions);
+    setScore(0);
+    setUserAnswers([]);
+    setNumber(0);
+    setLoading(false);
+  }
+
+  const prepareTriviaXeirourgikh1 = async () => {
+    setLoading(true);
+    setGameOver(false);
+    setInOptionsPage(true)
+    const newQuestions = await fetchQuizQuestionsXeirourgikh1()
+
+    setQuestions(newQuestions);
+    setScore(0);
+    setUserAnswers([]);
+    setNumber(0);
+    setLoading(false);
+  }
+
+  const prepareTriviaXeirourgikh2 = async () => {
+    setLoading(true);
+    setGameOver(false);
+    setInOptionsPage(true)
+    const newQuestions = await fetchQuizQuestionsXeirourgikh2()
+
+    setQuestions(newQuestions);
+    setScore(0);
+    setUserAnswers([]);
+    setNumber(0);
+    setLoading(false);
+  }
+
+  const prepareTriviaXeirourgikh3 = async () => {
+    setLoading(true);
+    setGameOver(false);
+    setInOptionsPage(true)
+    const newQuestions = await fetchQuizQuestionsXeirourgikh3()
+
+    setQuestions(newQuestions);
+    setScore(0);
+    setUserAnswers([]);
+    setNumber(0);
+    setLoading(false);
+  }
+
+  const prepareTriviaAkinith1 = async () => {
+    setLoading(true);
+    setGameOver(false);
+    setInOptionsPage(true)
+    const newQuestions = await fetchQuizQuestionsAkinith1()
+
+    setQuestions(newQuestions);
+    setScore(0);
+    setUserAnswers([]);
+    setNumber(0);
+    setLoading(false);
+  }
+
+  const prepareTriviaAkinith2 = async () => {
+    setLoading(true);
+    setGameOver(false);
+    setInOptionsPage(true)
+    const newQuestions = await fetchQuizQuestionsAkinith2()
+
+    setQuestions(newQuestions);
+    setScore(0);
+    setUserAnswers([]);
+    setNumber(0);
+    setLoading(false);
+  }
 
   const checkAnswer = (e: React.MouseEvent<HTMLButtonElement>) => {
     if(!gameOver) {
@@ -69,7 +168,7 @@ const App = () => {
   const nextQuestion = () => {
     // Move on to the next question if not the last question
     const nextQuestion = number + 1;
-    if(nextQuestion === TOTAL_QUESTIONS) {
+    if(nextQuestion === totalQuestions) {
       setGameOver(true)
     } else {
       setNumber(nextQuestion);
@@ -81,26 +180,36 @@ const App = () => {
       <GlobalStyle />
       <Wrapper>
         <h1>Dentistry Quiz</h1>
-        {gameOver || userAnswers.length === TOTAL_QUESTIONS ? (
-          <button className="start" onClick={startTrivia}>Start</button>
+        {gameOver || userAnswers.length === totalQuestions ? (
+          <div>
+            <button className="start" onClick={prepareTriviaExaktikh}>Εξακτική</button><br/>
+            <button className="start" onClick={prepareTriviaXeirourgikh1}>Χειρουργική 1</button><br/>
+            <button className="start" onClick={prepareTriviaXeirourgikh2}>Χειρουργική 2</button><br/>
+            <button className="start" onClick={prepareTriviaXeirourgikh3}>Χειρουργική 3</button><br/>
+            <button className="start" onClick={prepareTriviaAkinith1}>Ακίνητη 1</button><br/>
+            <button className="start" onClick={prepareTriviaAkinith2}>Ακίνητη 2</button>
+          </div>
         ) : null}
-        {!gameOver ? <p className="score">Score: {score}</p> : null}
+        {!gameOver && !inOptionsPage ? <p className="score">Score: {score}</p> : null}
         {loading && <p>Loading Questions...</p>}
-        {!loading && !gameOver && (
+        {!loading && !gameOver && !inOptionsPage && (
           <QuestionCard
             questionNr={number + 1}
-            totalQuestions={TOTAL_QUESTIONS}
+            totalQuestions={totalQuestions}
             question={questions[number].question}
             answers={questions[number].answer}
             userAnswer={userAnswers ? userAnswers[number] : undefined}
             callback={checkAnswer}          
           />
         )}
+        {!loading && !gameOver && inOptionsPage && (
+          <QuizOptions/>
+        )}
         {
           !gameOver &&
           !loading &&
           userAnswers.length === number + 1 &&
-          number + 1 !== TOTAL_QUESTIONS ? (
+          number + 1 !== totalQuestions ? (
             <button className="start" onClick={nextQuestion}>Next Question</button>
           ) : null
         }
