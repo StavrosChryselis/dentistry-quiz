@@ -26,6 +26,8 @@ const App = () => {
   const [ inOptionsPage, setInOptionsPage ] = useState(false)
   const [ totalQuestions, setTotalQuestions ] = useState(50)
 
+  document.title = 'Dentistry Quiz'
+
   class QuizOptions extends React.Component<{},QuizOptionsState> {
     constructor(props) {
       super(props);
@@ -39,8 +41,8 @@ const App = () => {
     }
   
     handleChange(event) {
-      event.target.name === 'starting-question' ? this.setState({startingQuestion:Number.parseInt(event.target.value)})
-                                                : this.setState({totalQuestions:Number.parseInt(event.target.value)})
+      event.target.name === 'starting-question' ? this.setState({startingQuestion:event.target.value.length == 0 ? 0 : Number.parseInt(event.target.value)})
+                                                : this.setState({totalQuestions:event.target.value.length == 0 ? 0 : Number.parseInt(event.target.value)})
     }
   
     handleSubmit(event) {
@@ -58,9 +60,9 @@ const App = () => {
           Collected {questions.length} questions <br/><br/>
           <label>
             {'Starting Question: '}
-            <input type='text' value={this.state.startingQuestion} name='starting-question' onChange={this.handleChange} /><br/>
+            <input type='text' value={this.state.startingQuestion == 0 ? '' : this.state.startingQuestion} name='starting-question' onChange={this.handleChange} /><br/>
             {'Total Questions: '}
-            <input type='text' value={this.state.totalQuestions} name='total-questions' onChange={this.handleChange} />
+            <input type='text' value={this.state.totalQuestions == 0 ? '' : this.state.totalQuestions} name='total-questions' onChange={this.handleChange} />
           </label><br/>
           <input type="submit" value="Submit" />
         </form>
